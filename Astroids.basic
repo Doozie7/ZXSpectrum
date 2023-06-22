@@ -1,0 +1,61 @@
+1 BORDER 0: PAPER 0: INK 7: CLS
+2 PRINT "ASTEROIDS"
+3 PRINT "PRESS ANY KEY TO START"
+4 INKEY$: BORDER 0: PAPER 0: INK 7: CLS
+
+10 LET shipx=15: LET shipy=20
+11 LET dx=0: LET dy=0
+12 LET score=0
+13 LET bullets=0
+14 DIM bulletx(5): DIM bullety(5)
+15 LET bulletdx=0: LET bulletdy=0
+16 LET asteroidx=RND*32: LET asteroidy=RND*10+3
+17 LET asteroiddx=RND-0.5: LET asteroiddy=RND-0.5
+18 LET asteroidsize=3
+
+20 PRINT AT shipy, shipx; "A"
+
+30 LET k$=INKEY$
+40 IF k$="q" THEN STOP
+50 IF k$="a" THEN LET dx=-1: LET dy=0
+60 IF k$="o" THEN LET dx=1: LET dy=0
+70 IF k$=" " THEN IF bullets<5 THEN LET bullets=bullets+1: LET bulletx(bullets)=shipx: LET bullety(bullets)=shipy-1
+
+80 LET shipx=shipx+dx
+90 LET shipy=shipy+dy
+100 IF shipx<0 THEN LET shipx=31
+110 IF shipx>31 THEN LET shipx=0
+120 IF shipy<0 THEN LET shipy=23
+130 IF shipy>23 THEN LET shipy=0
+
+140 FOR i=1 TO bullets
+150 PRINT AT bullety(i), bulletx(i); " "
+160 LET bullety(i)=bullety(i)-1
+170 PRINT AT bullety(i), bulletx(i); "*"
+180 IF bullety(i)<0 THEN LET bullets=bullets-1: LET bulletx(i)=bulletx(bullets+1): LET bullety(i)=bullety(bullets+1)
+190 NEXT i
+
+200 PRINT AT asteroidy, asteroidx; "o"
+
+210 LET asteroidx=asteroidx+asteroiddx
+220 LET asteroidy=asteroidy+asteroiddy
+
+230 IF asteroidx<0 OR asteroidx>31 THEN LET asteroiddx=-asteroiddx
+240 IF asteroidy<0 OR asteroidy>23 THEN LET asteroiddy=-asteroiddy
+
+250 IF ABS(asteroidx-shipx)<3 AND ABS(asteroidy-shipy)<3 THEN PRINT AT 12,10; "GAME OVER!";: STOP
+
+260 FOR i=1 TO bullets
+270 IF ABS(asteroidx-bulletx(i))<3 AND ABS(asteroidy-bullety(i))<3 THEN
+280 LET bullets=bullets-1
+290 LET bulletx(i)=bulletx(bullets+1)
+300 LET bullety(i)=bullety(bullets+1)
+310 LET asteroidsize=asteroidsize-1
+320 IF asteroidsize=0 THEN LET score=score+10: PRINT AT 2,10; "SCORE: "; score
+330 IF asteroidsize=0 THEN LET asteroidx=RND*32: LET asteroidy=RND*10+3: LET asteroiddx=RND-0.5: LET asteroiddy=RND-0.5: LET asteroidsize=3
+340 GOTO 370
+350 NEXT i
+
+360 GOTO 20
+
+370 GOTO 200

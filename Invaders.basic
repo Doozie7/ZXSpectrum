@@ -1,0 +1,37 @@
+1 BORDER 0: PAPER 0: INK 7: CLS
+2 LET aliens(50)={121, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65}
+3 LET gunner=121
+4 LET buildings=334433
+5 LET bonus=56667
+6 LET score=0
+7 PRINT "SPACE INVADERS"
+8 PRINT "PRESS ANY KEY TO START"
+9 b$=INKEY$
+10 BORDER 0: PAPER 0: INK 7: CLS
+11 PRINT "SCORE: "; score
+12 PRINT "PRESS QA TO MOVE GUNNER"
+13 PRINT "PRESS M TO SHOOT"
+14 PRINT "PRESS Q TO QUIT"
+15 LET x=16: LET y=20
+16 LET dx=1: LET dy=0
+17 PRINT AT y,x; CHR$ gunner
+
+20 LET k$=INKEY$
+30 IF k$="a" THEN IF x>0 THEN PRINT AT y,x; " "; LET x=x-1: PRINT AT y,x; CHR$ gunner
+40 IF k$="o" THEN IF x<31 THEN PRINT AT y,x; " "; LET x=x+1: PRINT AT y,x; CHR$ gunner
+50 IF k$="q" THEN STOP
+60 IF k$="m" THEN LET dx=0: LET dy=-1: LET bx=x: LET by=y-1: PRINT AT by,bx; "*"
+70 FOR i=1 TO 50
+80 LET ax=PEEK(65536+aliens(i)*8)
+90 LET ay=PEEK(65536+aliens(i)*8+1)
+100 IF ay=24 THEN PRINT AT ay,ax; CHR$ 32: LET ay=0: LET score=score+10
+110 LET ay=ay+1
+120 IF ay=21 AND (ax=x OR ax=x+1 OR ax=x+2) THEN PRINT AT 23,10; "GAME OVER!";: STOP
+130 PRINT AT ay,ax; CHR$ aliens(i)
+140 PEEK 65495
+150 PRINT AT by,bx; CHR$ 32
+160 IF ay=23 THEN LET by=0: LET bx=ax: PRINT AT by,bx; "*"
+170 NEXT i
+180 IF bx>0 THEN LET by=by-1: PRINT AT by,bx; "*"
+190 IF by=0 THEN PRINT AT by,bx; CHR$ 32
+200 GOTO 20

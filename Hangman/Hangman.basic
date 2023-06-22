@@ -8,29 +8,44 @@
 8 LET words$=words$+",SUN,MOON,STAR,SKY,CLOUDS,WIND,RIVER,OCEAN,SEA,LAKE,MOUNTAIN,HILL,FOREST,DESERT,ISLAND,SNOW,RAIN,THUNDER,LIGHTNING"
 9 LET words$=words$+",BOOK,PEN,PENCIL,PAPER,CAMERA,COMPUTER,PHONE,KEYBOARD,MOUSE,WATCH,TELEVISION,RADIO,HEADPHONES,SPEAKER"
 10 LET words$=words$+",CHAIR,TABLE,BED,SOFA,WARDROBE,LAMP,CLOCK,MIRROR,CURTAIN,WINDOW,DOOR,PLATE,CUP,FORK,KNIFE,SPOON,BOWL"
+
 20 PRINT "HANGMAN"
-30 LET r=INT(RND*100): LET word$=PARSE$(words$,",",r): LET length=LEN(word$)
-40 LET display$=""
-50 FOR i=1 TO length: LET display$=display$+"_": NEXT i
-60 LET lives=6: LET guessed$=""
-70 PRINT AT 8,0; "WORD: "; display$
-80 PRINT AT 10,0; "LIVES: "; lives
-90 INPUT "GUESS A LETTER: "; guess$
-100 IF LEN(guess$)<>1 THEN PRINT "INVALID INPUT!": GOTO 90
-110 IF INSTR(guessed$, guess$)>0 THEN PRINT "LETTER ALREADY GUESSED!": GOTO 90
-120 LET guessed$=guessed$+guess$
-130 LET found=0
-140 FOR i=1 TO length
-150 IF MID$(word$,i,1)=guess$ THEN LET display$=LEFT$(display$,i-1)+guess$+MID$(display$,i+1): LET found=1
-160 NEXT i
-170 IF found=0 THEN LET lives=lives-1
-180 PRINT AT 8,0; "WORD: "; display$
-190 PRINT AT 10,0; "LIVES: "; lives
-200 IF lives=0 THEN PRINT "YOU LOST! THE WORD WAS "; word$;: GOTO 240
-210 IF display$=word$ THEN PRINT "YOU WON!": GOTO 240
-220 GOTO 90
-240 PRINT " PLAY AGAIN (Y/N)? ";
-250 b$=INKEY$: PRINT b$
-260 IF b$="Y" OR b$="y" THEN CLS: GOTO 20
-270 PRINT "GOODBYE!"
-280 STOP
+30 LET word$=""
+40 LET r=INT(RND*LEN(words$))
+50 LET c=0
+60 LET w=""
+70 FOR i=1 TO LEN(words$)
+80 LET ch$=MID$(words$,i,1)
+90 IF ch$="," THEN
+100 IF c=r THEN LET word$=w: GOTO 120
+110 LET c=c+1: LET w=""
+120 ELSE
+130 LET w=w+ch$
+140 END IF
+150 NEXT i
+
+160 LET length=LEN(word$)
+170 LET display$=""
+180 FOR i=1 TO length: LET display$=display$+"_": NEXT i
+190 LET lives=6: LET guessed$=""
+200 PRINT AT 8,0; "WORD: "; display$
+210 PRINT AT 10,0; "LIVES: "; lives
+220 INPUT "GUESS A LETTER: "; guess$
+230 IF LEN(guess$)<>1 THEN PRINT "INVALID INPUT!": GOTO 220
+240 IF INSTR(guessed$, guess$)>0 THEN PRINT "LETTER ALREADY GUESSED!": GOTO 220
+250 LET guessed$=guessed$+guess$
+260 LET found=0
+270 FOR i=1 TO length
+280 IF MID$(word$,i,1)=guess$ THEN LET display$=LEFT$(display$,i-1)+guess$+MID$(display$,i+1): LET found=1
+290 NEXT i
+300 IF found=0 THEN LET lives=lives-1
+310 PRINT AT 8,0; "WORD: "; display$
+320 PRINT AT 10,0; "LIVES: "; lives
+330 IF lives=0 THEN PRINT "YOU LOST! THE WORD WAS "; word$;: GOTO 360
+340 IF display$=word$ THEN PRINT "YOU WON!": GOTO 360
+350 GOTO 220
+360 PRINT " PLAY AGAIN (Y/N)? ";
+370 b$=INKEY$: PRINT b$
+380 IF b$="Y" OR b$="y" THEN CLS: GOTO 20
+390 PRINT "GOODBYE!"
+400 STOP

@@ -1,0 +1,62 @@
+1 BORDER 0: PAPER 0: INK 7: CLS
+
+10 ' Draw cockpit frame
+20 PAPER 0
+30 INK 7
+40 FOR y = 0 TO 23
+50   PRINT AT y, 0; "*";
+60   PRINT AT y, 31; "*";
+70 NEXT y
+
+80 ' Draw control panel
+90 PAPER 3
+100 INK 7
+110 FOR y = 19 TO 23
+120   PRINT AT y, 8; "            ";
+130 NEXT y
+
+140 ' Draw radar screen
+150 PAPER 0
+160 INK 6
+170 FOR y = 1 TO 18
+180   PRINT AT y, 9; "                              ";
+190 NEXT y
+
+200 ' Draw targeting reticle
+210 INK 7
+220 PAPER 2
+230 FOR y = 9 TO 12
+240   PRINT AT y, 15; "        ";
+250 NEXT y
+
+260 ' Draw spacecraft controls
+270 PAPER 3
+280 INK 7
+290 PRINT AT 20, 1; "Fuel: ####";
+300 PRINT AT 21, 1; "Speed: ####";
+310 PRINT AT 22, 1; "Altitude: ####";
+
+320 ' Draw spacecraft display
+330 PAPER 0
+340 INK 7
+350 PRINT AT 0, 1; "SPACECRAFT VIEW";
+360 PRINT AT 2, 1; "      ^       ";
+370 PRINT AT 3, 1; "     /|\\     ";
+380 PRINT AT 4, 1; "    / | \\    ";
+390 PRINT AT 5, 1; "   /  |  \\   ";
+400 PRINT AT 6, 1; "  /___|___\\  ";
+410 PRINT AT 7, 1; "  |___|___|  ";
+420 PRINT AT 8, 1; "  |___|___|  ";
+430 PRINT AT 9, 1; "   |  |  |   ";
+440 PRINT AT 10, 1; "   |  |  |   ";
+450 PRINT AT 11, 1; "   |__|__|   ";
+460 PRINT AT 12, 1; "    /   \\    ";
+470 PRINT AT 13, 1; "   /     \\   ";
+480 PRINT AT 14, 1; "  /       \\  ";
+490 PRINT AT 15, 1; " /_________\\ ";
+
+500 ' Wait for user input
+510 PAUSE 0
+
+520 ' Clear the screen
+530 CLS

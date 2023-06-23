@@ -1,0 +1,243 @@
+; PONG game in ZX Spectrum Assembly
+
+; Constants
+SCREEN_WIDTH  equ 32      ; Width of the screen
+SCREEN_HEIGHT equ 24      ; Height of the screen
+PADDLE_HEIGHT equ 4       ; Height of the paddles
+BALL_CHAR     equ 128     ; Character code for the ball
+
+; Variables
+paddle1_y     equ $40     ; Paddle 1 vertical position
+paddle2_y     equ $41     ; Paddle 2 vertical position
+ball_x        equ $42     ; Ball horizontal position
+ball_y        equ $43     ; Ball vertical position
+ball_dx       equ $44     ; Ball horizontal direction (-1 or 1)
+ball_dy       equ $45     ; Ball vertical direction (-1 or 1)
+player_score  equ $46     ; Player's score
+computer_score equ $47    ; Computer's score
+
+; Entry point
+start:
+  di                      ; Disable interrupts
+  call init_screen        ; Initialize the screen
+  call init_game          ; Initialize the game
+  ei                      ; Enable interrupts
+
+main_loop:
+  call read_input         ; Read player input
+  call update_ball        ; Update ball position
+  call update_screen      ; Update screen
+  jp main_loop            ; Repeat main loop
+
+; Initialize the screen
+init_screen:
+  ld a, 56                ; Set border color to yellow
+  ld (23626), a
+  xor a                    ; Clear screen and set ink and paper colors
+  ld hl, 16384
+  ld de, SCREEN_WIDTH * SCREEN_HEIGHT
+  ld bc, 0
+  ldir
+  ret
+
+; Initialize the game
+init_game:
+  ld a, (23616)           ; Set initial paddle positions
+  ld (paddle1_y), a
+  ld a, (23616)
+  ld (paddle2_y), a
+  ld (ball_x), SCREEN_WIDTH / 2   ; Set initial ball position
+  ld (ball_y), SCREEN_HEIGHT / 2
+  ld (ball_dx), 1                  ; Set initial ball direction
+  ld (ball_dy), 1
+  ld (player_score), 0             ; Initialize scores
+  ld (computer_score), 0
+  ret
+
+; Read player input
+read_input:
+  in a, (16)                      ; Read keyboard
+  and 3                           ; Mask upper bits
+  ld c, a
+  ld a, (paddle1_y)
+  cp 0                            ; Check if paddle is at the top
+  jr z, .check_down               ; If yes, skip moving up
+  and 1                           ; Mask bit 0
+  xor 1                           ; Invert bit 0
+  ld (paddle1_y), a
+.check_down:
+  cp SCREEN_HEIGHT - PADDLE_HEIGHT  ; Check if paddle is at the bottom
+  jr nz, .check_fire
+  and 2                            ; Mask bit 1
+  xor 2                            ; Invert bit 1
+  ld (paddle1_y), a
+.check_fire:
+  jp check_fire                   ; Jump to check fire button
+
+; Update ball position
+update_ball:
+  ld a, (ball_x)                  ; Load ball position
+  add a, (ball_dx)                ; Add ball direction
+  cp 1                            ; Check if ball hit the left wall
+  jr nz, .check_right_wall
+  ld (ball_dx), 1                 ; Reverse ball direction
+.check_right_wall:
+  cp SCREEN_WIDTH - 1             ; Check if ball hit the right wall
+  jr nc, .check_top_bottom
+  ld (ball_dx), -1                ; Reverse ball direction
+.check_top_bottom:
+  ld (ball_x), a                  ; Save new ball position
+
+  ld a, (ball_y)                  ; Load ball position
+  add a, (ball_dy)                ; Add ball direction
+  cp 1                            ; Check if ball hit the top wall
+  jr nz, .check_bottom_wall
+  ld (ball_dy), 1                 ; Reverse ball direction
+.check_bottom_wall:
+  cp SCREEN_HEIGHT - 1            ; Check if ball hit the bottom wall
+  jr nc, .check_paddle
+  ld (ball_dy), -1                ; Reverse ball direction
+.check_paddle:
+  ld hl, paddle1_y                ; Check collision with paddle 1
+  cp (ball_y)
+  jr nz, .check_paddle2
+  ld a, (ball_x)
+  cp 1                            ; Check if ball is on the left side
+  jr nz, .bounce_paddle1
+  ld (ball_dx), 1                 ; Reverse ball direction
+  jp .check_paddle2
+.bounce_paddle1:
+  ld (ball_dx), -1                ; Reverse ball direction
+.check_paddle2:
+  ld hl, paddle2_y                ; Check collision with paddle 2
+  cp (ball_y)
+  jr nz, .update_scores
+  ld a, (ball_x)
+  cp SCREEN_WIDTH - 2             ; Check if ball is on the right side
+  jr nz, .bounce_paddle2
+  ld (ball_dx), -1                ; Reverse ball direction
+  jp .update_scores
+.bounce_paddle2:
+  ld (ball_dx), 1                 ; Reverse ball direction
+
+.update_scores:
+  ld a, (ball_x)                  ; Update scores
+  cp 0
+  jr nz, .check_scores
+  inc (player_score)
+  jp .reset_ball
+.check_scores:
+  cp SCREEN_WIDTH - 1
+  jr nz, .reset_ball
+  inc (computer_score)
+.reset_ball:
+  ld (ball_x), SCREEN_WIDTH / 2   ; Reset ball position
+  ld (ball_y), SCREEN_HEIGHT / 2
+  ret
+
+; Update the screen
+update_screen:
+  ld a, (23616)                   ; Clear old paddle positions
+  ld hl, paddle1_y
+  ld (hl), a
+  ld hl, paddle2_y
+  ld (hl), a
+
+  ld hl, (ball_y)                 ; Draw ball
+  ld de, SCREEN_WIDTH
+  add hl, de
+  ld a, (ball_x)
+  add a, a
+  add a, a
+  add a, a
+  add hl, a
+  ld (hl), BALL_CHAR
+
+  ld a, (paddle1_y)               ; Draw paddle 1
+  ld hl, 16384
+  ld de, SCREEN_WIDTH
+  add hl, de
+  add hl, de
+  add hl, de
+  add hl, a
+  ld bc, PADDLE_HEIGHT
+  ld a, 255
+  rla
+  ldir
+
+  ld a, (paddle2_y)               ; Draw paddle 2
+  ld hl, 16384 + SCREEN_WIDTH - 1
+  ld de, SCREEN_WIDTH
+  add hl, de
+  add hl, de
+  add hl, de
+  add hl, a
+  ld bc, PADDLE_HEIGHT
+  ld a, 255
+  rla
+  ldir
+
+  ld a, (player_score)            ; Draw player's score
+  ld hl, 16384 + SCREEN_WIDTH * 2 + 5
+  call draw_digit
+  ld a, (computer_score)          ; Draw computer's score
+  ld hl, 16384 + SCREEN_WIDTH * 2 + 9
+  call draw_digit
+
+  ret
+
+; Subroutine to draw a digit on the screen
+draw_digit:
+  push af
+  push de
+  push hl
+
+  ld e, a
+  and 15
+  ld d, 0
+  add hl, de
+  ld a, (hl)
+  or 128
+  ld (hl), a
+  inc hl
+
+  ld a, e
+  rrca
+  rrca
+  rrca
+  rrca
+  ld d, a
+  ld a, (hl)
+  or 128
+  ld (hl), a
+  inc hl
+
+  ld a, d
+  and 15
+  ld d, 0
+  add hl, de
+  ld a, (hl)
+  or 128
+  ld (hl), a
+  inc hl
+
+  ld a, e
+  rrca
+  rrca
+  rrca
+  rrca
+  ld d, a
+  ld a, (hl)
+  or 128
+  ld (hl), a
+
+  pop hl
+  pop de
+  pop af
+  ret
+
+; Interrupt routine (not used in this example)
+interrupt:
+  reti
+
+end:

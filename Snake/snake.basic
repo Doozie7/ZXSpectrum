@@ -1,39 +1,57 @@
-1 LET p=32768: LET v=1: LET d=1: LET s=0: LET f=INT(RND*768)+1: LET a=0
-2 BORDER 0: PAPER 0: INK 7: CLS
-3 PRINT "SNAKE GAME"
-4 PRINT "-----------"
-5 PRINT "PRESS ANY KEY TO START"
-6 PAUSE 0: IF INKEY$="" THEN 6
-7 PRINT AT 15,0; "SCORE: ";s
-8 LET x=10: LET y=10: POKE p, y*32+x+64: LET s=0: LET t=INT(RND*100)+20
-9 LET x=INT(RND*20)+1: LET y=INT(RND*20)+1
-10 LET a=a+1: LET a=a MOD 255
-11 IF a=16 THEN LET a=0
-12 IF INKEY$="o" THEN LET d=3
-13 IF INKEY$="p" THEN LET d=4
-14 IF INKEY$="q" THEN STOP
-15 IF INKEY$="s" THEN PAUSE 0
-16 IF INKEY$="r" THEN GOTO 7
-17 IF INKEY$="i" THEN LET v=1: GOTO 7
-18 IF INKEY$="k" THEN LET v=-1: GOTO 7
-19 IF INKEY$="j" THEN LET h=1: GOTO 7
-20 IF INKEY$="l" THEN LET h=-1: GOTO 7
-21 POKE p, 0
-22 LET x=x+h: LET y=y+v
-23 IF x=0 THEN LET x=20
-24 IF x=21 THEN LET x=1
-25 IF y=0 THEN LET y=20
-26 IF y=21 THEN LET y=1
-27 LET c=PEEK(y*32+x+64)
-28 IF c=1 THEN STOP
-29 IF c=2 THEN LET s=s+1: LET f=INT(RND*768)+1
-30 LET b=p: LET p=p+1: LET q=p
-31 IF p>33279 THEN LET p=32768
-32 POKE b, 1: POKE p, y*32+x+64
-33 IF s=t THEN LET t=INT(RND*100)+20: GOTO 39
-34 LET c=PEEK(q)
-35 IF c=0 THEN LET q=q+1: GOTO 37
-36 IF c=2 THEN LET q=q+1: GOTO 37
-37 POKE b, 0: POKE q, 1: LET b=q: GOTO 39
-38 IF c=1 THEN STOP
-39 PAUSE 1: GOTO 21
+  10 DIM X(100)
+  20 DIM Y(100)
+  30 LET v=0: LET h=1: LET d=1: LET s=1: LET f=INT (RND*768)+1: LET a=0
+  40 BORDER 0: PAPER 0: INK 7: CLS
+  50 PRINT "SNAKE GAME"
+  60 PRINT "-----------"
+  70 PRINT "PRESS ANY KEY TO START"
+  80 PAUSE 0
+  90 IF INKEY$="" THEN GO TO 80
+ 100 PRINT AT 15,0;"SCORE: ";s-1
+ 110 LET X(1)=10: LET Y(1)=10: LET t=INT (RND*100)+20
+ 120 REM Display the initial position of the snake
+ 130 PRINT AT Y(1),X(1);CHR$ (143)
+ 140 LET fx=INT (RND*20)+1: LET fy=INT (RND*20)+1
+ 150 REM Display the food
+ 160 PRINT AT fy,fx; CHR$ (143)
+ 170 LET a=a+1
+ 180 IF a=16 THEN LET a=0
+ 190 REM Control Logic
+ 200 IF INKEY$="o" THEN LET h=0: LET v=-1
+ 210 IF INKEY$="p" THEN LET h=0: LET v=1
+ 220 IF INKEY$="q" THEN STOP
+ 230 IF INKEY$="s" THEN PAUSE 0
+ 240 IF INKEY$="r" THEN GO TO 100
+ 250 IF INKEY$="i" THEN LET h=0: LET v=-1
+ 260 IF INKEY$="k" THEN LET h=0: LET v=1
+ 270 IF INKEY$="j" THEN LET h=-1: LET v=0
+ 280 IF INKEY$="l" THEN LET h=1: LET v=0
+ 290 REM Erase the last position
+ 300 PRINT AT Y(1),X(1);" "
+ 310 REM Update the position
+ 320 LET X(1)=X(1)+h: LET Y(1)=Y(1)+v
+ 330 REM Wrap around screen edges
+ 340 IF X(1)=0 THEN LET X(1)=20
+ 350 IF X(1)=21 THEN LET X(1)=1
+ 360 IF Y(1)=0 THEN LET Y(1)=20
+ 370 IF Y(1)=21 THEN LET Y(1)=1
+ 380 REM Display new position
+ 390 PRINT AT Y(1),X(1);CHR$ (143)
+ 400 REM Check for food collision
+ 410 IF X(1)=fx AND Y(1)=fy THEN LET s=s+1: LET fx=INT (RND*20)+1: LET fy=INT (RND*20)+1: PRINT AT fy,fx;CHR$ (143)
+ 420 REM Update the snake's body positions
+ 430 FOR i=s TO 2 STEP -1
+ 440 LET X(i)=X(i-1)
+ 450 LET Y(i)=Y(i-1)
+ 460 NEXT i
+ 470 REM Check if snake has reached target length
+ 480 IF s>t THEN LET t=INT (RND*100)+20: GO TO 510
+ 490 REM Check for self-collision
+ 500 FOR i=2 TO s
+ 510 IF X(1)=X(i) AND Y(1)=Y(i) THEN STOP
+ 520 NEXT i
+ 530 GO TO 190
+ 540 REM Game over
+ 550 STOP
+ 560 REM Victory message
+ 570 PRINT "You won!": STOP

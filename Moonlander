@@ -1,48 +1,38 @@
-1 BORDER 0: PAPER 0: INK 7: CLS
+10 PRINT "Lunar Lander"
+20 PRINT "---------------"
+30 LET FUEL = 1000
+40 LET ALT = 5000
+50 LET VEL = 0
+60 LET TIME = 0
+70 LET G = 1.6
+80 LET MAX_THRUST = 20
+90 PRINT "Initial altitude: "; ALT
+100 PRINT "Initial velocity: "; VEL
+110 PRINT "Fuel: "; FUEL
 
-10 ' Initialize variables
-20 LET x = 15: LET y = 2
-30 LET dx = 0: LET dy = 0
-40 LET fuel = 100
-50 LET landed = FALSE
+120 PRINT "Enter thrust (0-20): ";
+130 INPUT THRUST
+140 IF THRUST < 0 THEN LET THRUST = 0
+150 IF THRUST > MAX_THRUST THEN LET THRUST = MAX_THRUST
+160 IF THRUST > FUEL THEN LET THRUST = FUEL
 
-60 ' Game loop
-70 PRINT AT 0, 0; "Fuel: "; fuel
-80 PRINT AT y, x; "*"
+170 LET ACC = G - THRUST
+180 LET VEL = VEL + ACC
+190 LET ALT = ALT - VEL
+200 LET FUEL = FUEL - THRUST
+210 LET TIME = TIME + 1
 
-90 LET k$ = INKEY$
-100 IF k$ = "q" THEN STOP
+220 PRINT "Time: "; TIME
+230 PRINT "Altitude: "; INT(ALT)
+240 PRINT "Velocity: "; INT(VEL)
+250 PRINT "Fuel: "; FUEL
 
-110 ' Apply thrust
-120 IF k$ = " " THEN LET dy = dy - 1: LET fuel = fuel - 1
+260 IF ALT <= 0 THEN GOTO 300
+270 IF FUEL <= 0 THEN PRINT "Out of fuel! Free fall...": GOTO 300
+280 GOTO 120
 
-130 ' Calculate new position
-140 LET x = x + dx
-150 LET y = y + dy
+300 IF VEL > 10 THEN PRINT "Crashed!": STOP
+310 PRINT "Safe landing!": STOP
 
-160 ' Check for landing
-170 IF y > 22 THEN
-180   IF ABS(dx) < 1 THEN
-190     PRINT AT 23, 0; "Landing successful!": LET landed = TRUE
-200   ELSE
-210     PRINT AT 23, 0; "Crash!": LET landed = TRUE
-220   END IF
-230 END IF
-
-240 ' Check for fuel depletion
-250 IF fuel <= 0 THEN
-260   PRINT AT 23, 0; "Out of fuel!": LET landed = TRUE
-270 END IF
-
-280 ' Apply gravity
-290 IF NOT landed THEN LET dy = dy + 1
-
-300 PAUSE 10
-310 PRINT AT y, x; " "
-
-320 IF landed THEN
-330   PAUSE 1000
-340   CLS: GOTO 10
-350 END IF
 
 360 GOTO 70
